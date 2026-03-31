@@ -9,24 +9,24 @@
 //   - Do NOT add extra #include directives
 //   - All code must remain in this single file
 // ============================================================================
-
+ 
 #include <iostream>
 #include <cstring>
 #include <string>
-
+ 
 using namespace std;
-
+ 
 // ============================================================================
 // GLOBAL TRACKING VARIABLES
 // ============================================================================
 // These counters help tests verify that your special member functions are
 // actually being called. Increment them at the START of each function body.
-
+ 
 int g_constructorCount    = 0;
 int g_destructorCount     = 0;
 int g_copyConstructorCount = 0;
 int g_assignmentCount     = 0;
-
+ 
 // Helper functions to read/reset counters (DO NOT MODIFY)
 int getConstructorCount()     { return g_constructorCount; }
 int getDestructorCount()      { return g_destructorCount; }
@@ -38,7 +38,7 @@ void resetAllCounters() {
     g_copyConstructorCount = 0;
     g_assignmentCount      = 0;
 }
-
+ 
 // ============================================================================
 // CLASS DEFINITION: DynamicBuffer
 // ============================================================================
@@ -46,12 +46,12 @@ void resetAllCounters() {
 // It demonstrates the "Rule of Three": if a class manages a resource,
 // you must define a destructor, copy constructor, and copy assignment operator.
 // ============================================================================
-
+ 
 class DynamicBuffer {
 private:
     char* m_data;     // pointer to dynamically allocated C-string
     int   m_length;   // length of the string (excluding '\0')
-
+ 
 public:
     // --------------------------------------------------
     // Parameterized Constructor
@@ -63,11 +63,15 @@ public:
     DynamicBuffer(const char* input) {
         // TODO: Implement constructor
         //   1. Increment g_constructorCount
+         g_constructorCount++ ;
         //   2. Calculate length of input using strlen()
+         m_length = strlen(input);
         //   3. Allocate m_data with new char[m_length + 1]
+         m_data = new char [m_length + 1 ];
         //   4. Copy input into m_data using strcpy()
+        strcpy(m_data , input);
     }
-
+ 
     // --------------------------------------------------
     // Destructor
     // --------------------------------------------------
@@ -76,9 +80,11 @@ public:
     ~DynamicBuffer() {
         // TODO: Implement destructor
         //   1. Increment g_destructorCount
+        g_destructorCount++ ;
         //   2. Delete the dynamically allocated array (delete[])
+        delete[] m_data ;
     }
-
+ 
     // --------------------------------------------------
     // Copy Constructor (Deep Copy)
     // --------------------------------------------------
@@ -88,11 +94,15 @@ public:
     DynamicBuffer(const DynamicBuffer& other) {
         // TODO: Implement copy constructor
         //   1. Increment g_copyConstructorCount
+        g_copyConstructorCount++ ;
         //   2. Copy m_length from other
+        m_length = other.getLength();
         //   3. Allocate new memory: new char[m_length + 1]
+        m_data = new char[m_length + 1];
         //   4. Copy string data using strcpy()
+        strcpy (m_data , other.getData());
     }
-
+ 
     // --------------------------------------------------
     // Copy Assignment Operator (Deep Copy)
     // --------------------------------------------------
@@ -104,21 +114,29 @@ public:
     DynamicBuffer& operator=(const DynamicBuffer& other) {
         // TODO: Implement copy assignment operator
         //   1. Increment g_assignmentCount
+        g_assignmentCount++; 
         //   2. Check for self-assignment (if this == &other)
+        if( this == &other){
+            return*this;
+        }
         //   3. Delete old m_data (delete[])
+        delete [] m_data ;
         //   4. Copy m_length from other
+        m_length = other.m_length;
         //   5. Allocate new memory: new char[m_length + 1]
+        m_data = new char[m_length + 1];
         //   6. Copy string data using strcpy()
+        strcpy(m_data,other.m_data);
         //   7. Return *this
         return *this;
     }
-
+ 
     // --------------------------------------------------
     // Accessors (DO NOT MODIFY)
     // --------------------------------------------------
     const char* getData() const { return m_data; }
     int getLength() const { return m_length; }
-
+ 
     // --------------------------------------------------
     // setData - replace the buffer with a new string
     // --------------------------------------------------
@@ -128,11 +146,15 @@ public:
     void setData(const char* newData) {
         // TODO: Implement setData
         //   1. Delete old m_data (delete[])
+        delete[] m_data ;
         //   2. Calculate new length with strlen()
+        m_length = strlen(newData);
         //   3. Allocate new memory: new char[m_length + 1]
+        m_data = new char[m_length + 1];
         //   4. Copy newData into m_data using strcpy()
+        strcpy(m_data , newData);
     }
-
+ 
     // --------------------------------------------------
     // print - display the buffer content (DO NOT MODIFY)
     // --------------------------------------------------
@@ -140,25 +162,25 @@ public:
         cout << "DynamicBuffer[\"" << m_data << "\", length=" << m_length << "]" << endl;
     }
 };
-
+ 
 // ============================================================================
 // FREE FUNCTION: createBufferCopy
 // ============================================================================
 // This function takes a DynamicBuffer BY VALUE (triggers copy constructor)
 // and returns it BY VALUE (may trigger copy or move).
 // DO NOT MODIFY this function.
-
+ 
 DynamicBuffer createBufferCopy(DynamicBuffer buf) {
     return buf;
 }
-
+ 
 // ============================================================================
 // MAIN FUNCTION
 // ============================================================================
 int main() {
     cout << "=== Destructors, Copy Constructors & Assignment Lab ===" << endl;
     cout << endl;
-
+ 
     // --- Part 1: Constructor & Destructor ---
     cout << "--- Part 1: Constructor & Destructor ---" << endl;
     {
@@ -168,21 +190,21 @@ int main() {
     }
     cout << "b1 destroyed. Destructor count: " << getDestructorCount() << endl;
     cout << endl;
-
+ 
     resetAllCounters();
-
+ 
     // --- Part 2: Copy Constructor ---
     cout << "--- Part 2: Copy Constructor ---" << endl;
     {
         DynamicBuffer original("Deep Copy Test");
         DynamicBuffer copied(original);  // copy constructor called
-
+ 
         cout << "Original: ";
         original.print();
         cout << "Copied:   ";
         copied.print();
         cout << "Copy constructor count: " << getCopyConstructorCount() << endl;
-
+ 
         // Modify original - copied should NOT change (deep copy)
         original.setData("Modified Original");
         cout << "After modifying original:" << endl;
@@ -192,25 +214,25 @@ int main() {
         copied.print();
     }
     cout << endl;
-
+ 
     resetAllCounters();
-
+ 
     // --- Part 3: Assignment Operator ---
     cout << "--- Part 3: Assignment Operator ---" << endl;
     {
         DynamicBuffer a("Alpha");
         DynamicBuffer b("Beta");
-
+ 
         cout << "Before assignment:" << endl;
         cout << "a: "; a.print();
         cout << "b: "; b.print();
-
+ 
         b = a;  // assignment operator called
         cout << "After b = a:" << endl;
         cout << "a: "; a.print();
         cout << "b: "; b.print();
         cout << "Assignment count: " << getAssignmentCount() << endl;
-
+ 
         // Modify a - b should NOT change
         a.setData("Changed A");
         cout << "After modifying a:" << endl;
@@ -218,7 +240,7 @@ int main() {
         cout << "b: "; b.print();
     }
     cout << endl;
-
+ 
     // --- Part 4: Self-Assignment Safety ---
     cout << "--- Part 4: Self-Assignment ---" << endl;
     {
@@ -228,8 +250,8 @@ int main() {
         s.print();
     }
     cout << endl;
-
+ 
     cout << "=== Lab Complete ===" << endl;
-
+ 
     return 0;
 }
